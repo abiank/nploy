@@ -10,8 +10,8 @@ function range (val) {
 program
   .version('0.1.2')
   .option('-r, --range <a>..<b>', 'Port range [7000..7099]', range)
-  .option('-t, --time <seconds>', 'Time to idle [15]', 15, parseInt)
-  .option('-p, --port <port>', 'Port to listen to [80]', 80, parseInt)
+  .option('-t, --time <seconds>', 'Time to idle [15]', 250, parseInt)
+  .option('-p, --port <port>', 'Port to listen to [80]', 8080, parseInt)
   .option('-H, --host <host>', 'Host to listen to [0.0.0.0]', '0.0.0.0')
   .option('-c, --config <config>', 'Config file [./nploy.cfg]', './nploy.cfg')
   .option('-d, --dir <dir>', 'Current working dir [.]', '.')
@@ -64,12 +64,17 @@ var routes = (function () {
     console.log('  ' + line)
     var hostname = line.split(' ')[0]
     var target = line.split(' ')[1]
+    var customdir = line.split(' ')[2]
+    console.log(' cd:' +customdir)
+    var parms = line.split(' ')[3] //  should really join elems 3....x, will only work for parms with no spaces for now
     var www = hostname.substr(0, 4) === 'www.'
     if (www) {
       hostname = hostname.substr(4)
     }
     routes[hostname] = {
       app: target
+      , customdir: customdir
+      , parms : parms
     , www: www
     , pid: null
     , host: hostname
@@ -142,7 +147,8 @@ function runChild (app, callback) {
   process.env.PORT = app.port
 
   try {
-    child = app.child = spawn('node', [ app.app ])
+    child = app.child = spawn('node', [ app.app , app.parms!=undefined?app.parms:""],{cwd:app.customdir})
+    //child = app.child = spawn('node', [ app.app , app.parms!=undefined?app.parms:""],{cwd:'/home/ale/nodebb'})
     app.pid = child.pid
     app.lastAccessTime = Date.now()
     pids.push(app.pid)
@@ -173,7 +179,7 @@ function runChild (app, callback) {
   // give it some time to initialize
   setTimeout(function () {
     callback()
-  }, 4000)
+  }, 14000)
 }
 
 function kill (pids, callback) {

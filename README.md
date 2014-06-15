@@ -1,5 +1,7 @@
 # nploy
 
+forked from https://github.com/stagas/nploy to add process-specific start directories and command line parms
+
 ## Installing
 
 Install with `npm install -f -g nploy` until `node-http-proxy` fixes
@@ -27,8 +29,8 @@ for `0.6.x`.
 The config file is a simple text file in this format:
 
 ```
-domain.name.com path/to/app.js
-www.domain.other.com path/to/another.js
+domain.name.com path/to/app.js /directory parameters
+www.domain.other.com path/to/another.js /directory parameters
 
 ```
 
